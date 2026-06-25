@@ -10,6 +10,7 @@ import UIKit
 
 class UpcomingclassesTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var joinBtn: UIButton!
     @IBOutlet weak var calenderBtn: UIButton!
     @IBOutlet weak var teachernameLbl: UILabel!
     @IBOutlet weak var teacherImageView: UIImageView!

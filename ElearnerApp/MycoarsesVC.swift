@@ -11,6 +11,7 @@ struct MyCoursesResponse: Codable {
     let message: String
     let continueCourse: MyCourse?
     let courses: [MyCourse]
+    let banner: MyCourseBanner?
 }
 
 struct MyCourse: Codable {
@@ -27,7 +28,13 @@ struct MyCourse: Codable {
     let short_title_2: String?
     let short_title_3: String?
 }
-
+struct MyCourseBanner: Codable {
+    let title: String?
+    let subtitle: String?
+    let image: String?
+    let color: String?
+    let progress: Int?
+}
 class MycoarsesVC: UIViewController {
 
     @IBOutlet weak var tableHeightConstraint: NSLayoutConstraint!
@@ -38,6 +45,7 @@ class MycoarsesVC: UIViewController {
     @IBOutlet weak var searchView: UIView!
     var continueCourse: MyCourse?
         var courses: [MyCourse] = []
+    var banner: MyCourseBanner?
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -66,58 +74,57 @@ class MycoarsesVC: UIViewController {
               purchesedcoursesTableView.isScrollEnabled = false
               purchesedcoursesTableView.rowHeight = 120
               purchesedcoursesTableView.estimatedRowHeight = 120
+              
           }
 
-          func myCoursesAPI() {
-              let url = URL(string: "https://unarmored-dropper-blatantly.ngrok-free.dev/api/my-courses")!
+    func myCoursesAPI() {
+           let url = URL(string: "https://unarmored-dropper-blatantly.ngrok-free.dev/api/my-courses")!
 
-              let token = UserDefaults.standard.string(forKey: "authToken") ?? ""
-              print("SAVED TOKEN:", token)
+           let token = UserDefaults.standard.string(forKey: "authToken") ?? ""
+           print("SAVED TOKEN:", token)
 
-              var request = URLRequest(url: url)
-              request.httpMethod = "GET"
-              request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-              request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+           var request = URLRequest(url: url)
+           request.httpMethod = "GET"
+           request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+           request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-              URLSession.shared.dataTask(with: request) { data, response, error in
+           URLSession.shared.dataTask(with: request) { data, response, error in
 
-                  if let error = error {
-                      print("API Error:", error.localizedDescription)
-                      return
-                  }
+               if let error = error {
+                   print("API Error:", error.localizedDescription)
+                   return
+               }
 
-                  guard let data = data else { return }
+               guard let data = data else { return }
 
-                  print("RAW RESPONSE:", String(data: data, encoding: .utf8) ?? "")
+               print("RAW RESPONSE:", String(data: data, encoding: .utf8) ?? "")
 
-                  do {
-                      let result = try JSONDecoder().decode(MyCoursesResponse.self, from: data)
+               do {
+                   let result = try JSONDecoder().decode(MyCoursesResponse.self, from: data)
 
-                      DispatchQueue.main.async {
-                          self.continueCourse = result.continueCourse
-                          self.courses = result.courses
+                   DispatchQueue.main.async {
+                       self.banner = result.banner
+                       self.continueCourse = result.continueCourse
+                       self.courses = result.courses
 
-                          self.continueCourseCollectionView.reloadData()
-                          self.purchesedcoursesTableView.reloadData()
+                       self.continueCourseCollectionView.reloadData()
+                       self.purchesedcoursesTableView.reloadData()
 
-                          self.updateTableHeight()
-                      }
+                       self.updateTableHeight()
+                   }
 
-                  } catch {
-                      print("Decode Error:", error)
-                  }
+               } catch {
+                   print("Decode Error:", error)
+               }
 
-              }.resume()
-          }
+           }.resume()
+       }
 
-    func updateTableHeight() {
-        purchesedcoursesTableView.layoutIfNeeded()
-
-        let rowHeight: CGFloat = 120
-        tableHeightConstraint.constant = CGFloat(courses.count) * rowHeight
-
-        view.layoutIfNeeded()
-    }
+       func updateTableHeight() {
+           let rowHeight: CGFloat = 120
+           tableHeightConstraint.constant = CGFloat(courses.count) * rowHeight
+           view.layoutIfNeeded()
+       }
     @IBAction func backBtn(_ sender: UIButton) {
         self.navigationController?.popViewController(animated: true)
     }
@@ -126,50 +133,32 @@ class MycoarsesVC: UIViewController {
 
 }
 extension MycoarsesVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return continueCourse == nil ? 0 : 1
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        numberOfItemsInSection section: Int) -> Int {
+        return 1
     }
-
+    
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-
-        let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: "ContinueCourseCollectionViewCell",
-            for: indexPath
-        ) as! ContinueCourseCollectionViewCell
-
-        guard let item = continueCourse else {
+        let cell = continueCourseCollectionView.dequeueReusableCell(withReuseIdentifier: "ContinueCourseCollectionViewCell", for: indexPath) as! ContinueCourseCollectionViewCell
+        
             return cell
         }
-
-        cell.continuecoursesView.layer.cornerRadius = 12
-        cell.foundationView.layer.cornerRadius = 8
-
-        cell.batchyearLbl.text = item.title
-        cell.percentageLbl.text = "\(item.progress)%"
-        cell.progressbar.progress = Float(item.progress) / 100.0
-
-        cell.bpscLbl.text = "BPSC"
-        cell.foundationLbl.text = "FOUNDATION"
-        cell.yearLbl.text = "BATCH 2026"
-
-        if let image = item.image {
-            cell.bookImageView.loadImage(from: image)
+        
+    
+        func collectionView(_ collectionView: UICollectionView,
+                            layout collectionViewLayout: UICollectionViewLayout,
+                            sizeForItemAt indexPath: IndexPath) -> CGSize {
+            
+            return CGSize(
+                width: continueCourseCollectionView.frame.width,
+                height: continueCourseCollectionView.frame.height
+            )
         }
-
-        cell.resumecourseBtn.layer.cornerRadius = 8
-
-        return cell
-    }
-
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        sizeForItemAt indexPath: IndexPath) -> CGSize {
-
-        return CGSize(width: collectionView.frame.width,
-                      height: collectionView.frame.height)
-    }
+       
+    
+    
 }
 
 extension MycoarsesVC: UITableViewDelegate, UITableViewDataSource {
@@ -196,13 +185,24 @@ extension MycoarsesVC: UITableViewDelegate, UITableViewDataSource {
         cell.upscprelimsyearLbl.text = item.title
         cell.dateLbl.text = "Validity: \(item.validity ?? "")"
         cell.upscprelmsView.backgroundColor = UIColor(hex: item.color ?? "#3B82F6")
-        cell.upscLbl.text = item.short_title_1 ?? ""
-        cell.prelimsLbl.text = item.short_title_2 ?? ""
-        cell.yearLbl.text = item.short_title_3 ?? ""
+        cell.upscLbl.text = item.short_title_1 ?? "COURSE"
+        cell.prelimsLbl.text = item.short_title_2 ?? "ONLINE"
+        cell.yearLbl.text = item.short_title_3 ?? "2026"
 
         return cell
     }
+    func tableView(_ tableView: UITableView,
+                   didSelectRowAt indexPath: IndexPath) {
 
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        let item = courses[indexPath.row]
+
+        let vc = PurchasedCourseDetailsVC()
+        vc.course = item
+
+        navigationController?.pushViewController(vc, animated: true)
+    }
     func tableView(_ tableView: UITableView,
                    heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 120

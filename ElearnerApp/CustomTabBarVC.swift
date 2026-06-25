@@ -8,7 +8,7 @@ final class CustomTabBarVC: UIViewController {
     private let homeBtn = UIButton(type: .system)
     private let coursesBtn = UIButton(type: .system)
     private let currentBtn = UIButton(type: .system)
-    private let ebooksBtn = UIButton(type: .system)
+    private let DoubtsBtn = UIButton(type: .system)
     private let profileBtn = UIButton(type: .system)
 
     private var currentVC: UIViewController?
@@ -57,14 +57,14 @@ final class CustomTabBarVC: UIViewController {
         setupButton(homeBtn, title: "Home", image: "house.fill", tag: 0)
         setupButton(coursesBtn, title: "My Courses", image: "book", tag: 1)
         setupButton(currentBtn, title: "Currents", image: "safari", tag: 2)
-        setupButton(ebooksBtn, title: "Ebooks", image: "books.vertical", tag: 3)
+        setupButton(DoubtsBtn, title: "Doubt", image: "questionmark.bubble.fill", tag: 3)
         setupButton(profileBtn, title: "Profile", image: "person", tag: 4)
 
         let stack = UIStackView(arrangedSubviews: [
             homeBtn,
             coursesBtn,
             currentBtn,
-            ebooksBtn,
+            DoubtsBtn,
             profileBtn
         ])
 
@@ -102,7 +102,7 @@ final class CustomTabBarVC: UIViewController {
     }
 
     private func selectTab(index: Int) {
-        [homeBtn, coursesBtn, currentBtn, ebooksBtn, profileBtn].forEach {
+        [homeBtn, coursesBtn, currentBtn, DoubtsBtn, profileBtn].forEach {
             $0.tintColor = .gray
         }
 
@@ -120,15 +120,18 @@ final class CustomTabBarVC: UIViewController {
 
         case 2:
             currentBtn.tintColor = .systemBlue
-            vc = storyboard.instantiateViewController(withIdentifier: "HomeVC")
+            let currentVC = BpscupscVC()
+            currentVC.categoryType = "current_affairs"
+            currentVC.screenTitle = "Current Affairs"
+            vc = currentVC
 
         case 3:
-            ebooksBtn.tintColor = .systemBlue
-            vc = storyboard.instantiateViewController(withIdentifier: "HomeVC")
+            DoubtsBtn.tintColor = .systemBlue
+            vc = storyboard.instantiateViewController(withIdentifier: "DoubtVC")
 
         case 4:
             profileBtn.tintColor = .systemBlue
-            vc = storyboard.instantiateViewController(withIdentifier: "HomeVC")
+            vc = storyboard.instantiateViewController(withIdentifier: "ProfileVC")
 
         default:
             return
@@ -136,7 +139,6 @@ final class CustomTabBarVC: UIViewController {
 
         changeVC(vc)
     }
-
     private func changeVC(_ vc: UIViewController) {
         currentVC?.willMove(toParent: nil)
         currentVC?.view.removeFromSuperview()

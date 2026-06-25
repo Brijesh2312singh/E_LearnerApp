@@ -228,13 +228,62 @@ extension HomeVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollec
                 navigationController?.pushViewController(vc, animated: true)
 
             } else if item.title == "Live Tests" {
-//                let vc = storyboard?.instantiateViewController(withIdentifier: "LiveTestsVC") as! LiveTestsVC
-//                openScreen(vc)
+                let vc = storyboard?.instantiateViewController(withIdentifier: "LivetestVC") as! LivetestVC
+                navigationController?.pushViewController(vc, animated: true)
+                
+            }
+        }
+        else if collectionView == bpscCollectionView {
+
+                let item = sections[indexPath.row]
+
+                print("CATEGORY CLICK:", item.title)
+
+                let vc = BpscupscVC()
+
+                switch item.title {
+
+                case "BPSC-UPSC":
+                    vc.categoryType = "bpsc_upsc"
+                    vc.screenTitle = "BPSC-UPSC"
+
+                case "TRE Course":
+                    vc.categoryType = "tre_course"
+                    vc.screenTitle = "TRE Course"
+
+                case "Test Series Prelims":
+                    vc.categoryType = "test_series_prelims"
+                    vc.screenTitle = "Test Series Prelims"
+
+                case "Test Series Mains":
+                    vc.categoryType = "test_series_mains"
+                    vc.screenTitle = "Test Series Mains"
+
+                case "e-Book":
+                    vc.categoryType = "ebooks"
+                    vc.screenTitle = "e-Books"
+
+                case "One Day Exams":
+                    vc.categoryType = "one_day_exams"
+                    vc.screenTitle = "One Day Exams"
+
+                case "Current Affairs":
+                    vc.categoryType = "current_affairs"
+                    vc.screenTitle = "Current Affairs"
+
+                case "Practice Set":
+                    vc.categoryType = "practice_set"
+                    vc.screenTitle = "Practice Set"
+
+                default:
+                    return
+                }
+
+                navigationController?.pushViewController(vc, animated: true)
             }
         }
     
     
-    }
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
